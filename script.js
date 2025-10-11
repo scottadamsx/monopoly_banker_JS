@@ -45,6 +45,7 @@ document.body.appendChild(setupDiv)
 setupDiv.textContent = " "
 
 let gameBox = document.getElementById("gameBox")
+let currentTurnBox = document.getElementById("currentTurnBox")
 let messageBox = document.getElementById("messageBox")
 let actionButtonsBox = document.getElementById("actionButtonsBox")
 
@@ -245,8 +246,7 @@ function updatePlayerValues(players) {
     let playerValuesSection = document.getElementById("playerValuesSection")
     playerValuesSection.innerHTML = ""
     players.forEach(player => {
-         let playerValues = document.createElement("div")
-        playerValues.id = player.name + "Values"
+        
         // add a space for name
         let playerName = document.createElement("h3")
         playerName.textContent = player.name
@@ -278,6 +278,9 @@ function updatePlayerValues(players) {
         // add playerValues to the div
         let playerDiv = document.createElement("div")
         playerValuesSection.appendChild(playerDiv)
+       
+        playerDiv.id = player.name + "Values"
+        playerDiv.classList = "playerValuesBox"
         
         playerDiv.appendChild(playerName)
         playerDiv.appendChild(playerWalletLabel)
@@ -320,8 +323,12 @@ function rollDie() {
 }
 
 
+
+
 function takeTurn(game) {
-    messageBox.textContent = "it is " + game.currentPlayer.name + "'s turn!"
+    currentTurnBox.textContent = "it is " + game.currentPlayer.name + "'s turn!"
+    messageBox.textContent = "Take your turn by rolling the dice!"
+    actionButtonsBox.innerHTML = ""
     let rollBtn = document.createElement("button")
     rollBtn.textContent = "roll dice!"
     rollBtn.addEventListener("click", () => {
@@ -333,35 +340,236 @@ function takeTurn(game) {
         // handle roll
         rollBtn.remove()
         let newSpace = game.board[game.currentPlayer.currentSpace]
+        updatePlayerValues(game.players)
         console.log("Game Log: " + game.currentPlayer.name + " rolled "+ roll + " and landed on " + newSpace) // game log
         if (newSpace instanceof Property) {
+            // logic for if the property isn't owned
             if (newSpace.owner == "none") {
-                console.log("no one owns this!")
-                let purchase = prompt(`you landed on ${newSpace.name} it costs ${newSpace.price}, would you like to buy it? [yes/no]:`)
-                if (purchase == "yes") {
+                messageBox.innerHTML += `you landed on ${newSpace.name}! It costs ${newSpace.price}$<br>would you like to buy it?<br>`
+                let purchaseBtn = document.createElement("button")
+                purchaseBtn.textContent = "Buy Property"
+                purchaseBtn.addEventListener("click", () => {
                     game.currentPlayer.wallet -= newSpace.price 
                     newSpace.owner = game.currentPlayer
                     game.currentPlayer.properties.push(newSpace)
-                }
+                    afterTurnMenu(game)
+                })
+                actionButtonsBox.appendChild(purchaseBtn)
+
+                let dontPurchaseBtn = document.createElement("button")
+                dontPurchaseBtn.textContent = "Don't Buy"
+                dontPurchaseBtn.addEventListener("click", (game) => {
+                    actionButtonsBox.innerHTML = ""
+                    afterTurnMenu(game)
+                })
+                actionButtonsBox.appendChild(dontPurchaseBtn)
+
+                
+                    
+                
+            // logic for if someone owns the property you landed on
             } else {
-                console.log("someone owns this!")
-                alert(`This is owned by ${newSpace.owner.name}, you paid them ${newSpace.rent} in rent`)
+                messageBox.innerHTML += `${newSpace.name} is owned by ${newSpace.owner.name}, you paid them ${newSpace.rent} in rent`
                 game.currentPlayer.wallet -= newSpace.rent
                 newSpace.owner.wallet += newSpace.rent
                 console.log(`Game Log: ${game.currentPlayer} paid`)
+                afterTurnMenu(game)
 
 
             } 
+        // user lands on special property (not yet developed)
         } else {
-                alert(`you landed on ${newSpace}, more development coming soon! for now it is a free space :)`)
+                messageBox.innerHTML += `you landed on ${newSpace}, more development coming soon! for now it is a free space :)`
+                afterTurnMenu(game)
             }
-        updatePlayerValues(game.players)
+        
 
-        game.currentPlayer = switchPlayer(game)
-        takeTurn(game)
-
+    
     })
     actionButtonsBox.appendChild(rollBtn)
+}
+// MAKE TRADE LOGIC
+// ==============================================================================================================
+function makeTrade(trader, tradee) {
+    let tradersTradeProperties = []
+    let tradeesTradeProperties = []
+    messageBox.textContent = ""
+    actionButtonsBox.innerHTML = ""
+    messageBox.textContent = `${trader.name} is looking to make a trade with ${tradee.name}`
+    let tradeContainer = document.createElement("div")
+    tradeContainer.id = "tradeContainer"
+    gameBox.appendChild(tradeContainer)
+    //CREATE TRADERBOX ==========================================================================================
+    // traderBox is the div that holds all the elements for trade
+    let traderBox = document.createElement("div")
+    traderBox.className = "tradeBox"
+    tradeContainer.appendChild(traderBox)
+    // create title
+    let traderBoxTitle = document.createElement("h2")
+    traderBoxTitle.textContent = trader.name
+   
+
+    // add money for trader side
+    let traderMoneyLabel = document.createElement("label")
+    traderMoneyLabel.textContent = "Trader money in trade:"
+    traderMoneyLabel.htmlFor = "traderMoney"
+    let traderMoney = document.createElement("input")
+    traderMoney.id = "traderMoney"
+    traderMoney.type = "number"
+    traderMoney.min = 0
+    traderMoney.max = trader.wallet
+    
+    // create a select for user to add properties to trade
+    let traderPropertySelect = document.createElement("select")
+    traderPropertySelect.id = "traderPropertySelect"
+    
+    // add options for select
+    trader.properties.forEach(property => {
+        let option = document.createElement("option")
+        option.value = property
+        option.label = property.name
+        traderPropertySelect.appendChild(option)
+    })
+    // show properties to be traded that are added 
+    let traderTradeDisplay = document.createElement("textarea")
+    let traderAddPropertyBtn = document.createElement("button")
+    traderAddPropertyBtn.addEventListener("click", () => {
+        let propertyToAddToTrade = traderPropertySelect.value
+        tradersTradeProperties.push(propertyToAddToTrade)
+        traderTradeDisplay.value += `${propertyToAddToTrade.name}\n`
+    })
+
+    traderBox.appendChild(traderBoxTitle)
+    traderBox.appendChild(document.createElement("br"))
+    traderBox.appendChild(traderMoneyLabel)
+    traderBox.appendChild(traderMoney)
+    traderBox.appendChild(document.createElement("br"))
+    traderBox.appendChild(traderPropertySelect)
+    traderBox.appendChild(traderAddPropertyBtn)
+    traderBox.appendChild(document.createElement("br"))
+    traderBox.appendChild(traderTradeDisplay)
+    // END OF TRADER BOX ==========================================================================================
+
+    //CREATE BOX FOR TRADEE =======================================================================================
+    // tradeeBox is the div that holds all the elements for trade
+    let tradeeBox = document.createElement("div")
+    tradeeBox.className = "tradeBox"
+    tradeContainer.appendChild(tradeeBox)
+    // create title
+    let tradeeBoxTitle = document.createElement("h2")
+    tradeeBoxTitle.textContent = tradee.name
+    
+    // add money for trader side
+    let tradeeMoneyLabel = document.createElement("label")
+    tradeeMoneyLabel.textContent = "Tradee money in trade:"
+    tradeeMoneyLabel.htmlFor = "tradeeMoney"
+    let tradeeMoney = document.createElement("input")
+    tradeeMoney.id = "tradeeMoney"
+    tradeeMoney.type = "number"
+    tradeeMoney.min = 0
+    tradeeMoney.max = tradee.wallet
+    
+    // create a select for user to add properties to trade
+    let tradeePropertySelect = document.createElement("select")
+    tradeePropertySelect.id = "tradeePropertySelect"
+    
+    // add options for select
+    tradee.properties.forEach(property => {
+        let option = document.createElement("option")
+        option.value = property
+        option.label = property.name
+        tradeePropertySelect.appendChild(option)
+    })
+    // show properties to be traded that are added 
+    let tradeeTradeDisplay = document.createElement("textarea")
+    let tradeeAddPropertyBtn = document.createElement("button")
+    tradeeAddPropertyBtn.textContent = "add property"
+    tradeeAddPropertyBtn.addEventListener("click", () => {
+        let propertyToAddToTrade = tradeePropertySelect.value
+        tradeesTradeProperties.push(propertyToAddToTrade)
+        tradeeTradeDisplay.value += `${propertyToAddToTrade.name}\n`
+    })
+    tradeeBox.appendChild(tradeeBoxTitle)
+    tradeeBox.appendChild(document.createElement("br"))
+    tradeeBox.appendChild(tradeeMoneyLabel)
+    tradeeBox.appendChild(tradeeMoney)
+    tradeeBox.appendChild(document.createElement("br"))
+    tradeeBox.appendChild(tradeePropertySelect)
+    tradeeBox.appendChild(tradeeAddPropertyBtn)
+    tradeeBox.appendChild(document.createElement("br"))
+    tradeeBox.appendChild(tradeeTradeDisplay)
+    // END OF TRADEE BOX ==========================================================================================
+
+
+    let confirmTradeBtn = document.createElement("button")
+    confirmTradeBtn.textContent = "Confirm Trade"
+    confirmTradeBtn.addEventListener("click", () => {
+        alert("confirm trade!")
+    })
+
+    let denyTradeBtn = document.createElement("button")
+    denyTradeBtn.textContent = "Deny Trade"
+    denyTradeBtn.addEventListener("click", () => {
+        alert("deny trade!")
+    })
+    actionButtonsBox.appendChild(confirmTradeBtn)
+    actionButtonsBox.appendChild(denyTradeBtn)
+
+}
+
+
+function makeTradeMenu(game) {
+    let playersToTradeWith = []
+    actionButtonsBox.innerHTML = ""
+    messageBox.textContent = "who would you like to trade with?"
+    game.players.forEach(player => {
+        if (player == game.currentPlayer) {
+            console.log("nah, not this one")
+        } else {
+            let playerBtn = document.createElement("button")
+            playerBtn.textContent = player.name
+            playerBtn.addEventListener("click", () => {
+                makeTrade(game.currentPlayer, player) 
+            })
+            actionButtonsBox.appendChild(playerBtn)
+        }
+    })
+}
+// ==============================================================================================================
+
+
+function afterTurnMenu(game) {
+    updatePlayerValues(game.players)
+    actionButtonsBox.innerHTML = ""
+    let makeTradeBtn = document.createElement("button")
+        makeTradeBtn.textContent = "Make Trade"
+        makeTradeBtn.addEventListener("click", () => {
+            makeTradeMenu(game)
+
+        })
+        actionButtonsBox.appendChild(makeTradeBtn)
+
+        let buyHousesBtn = document.createElement("button")
+        buyHousesBtn.textContent = "Buy Houses"
+        buyHousesBtn.addEventListener("click", () => {
+            alert("buy houses btn clicked!")
+        })
+        actionButtonsBox.appendChild(buyHousesBtn)
+
+        let sellHousesBtn = document.createElement("button")
+        sellHousesBtn.textContent = "Sell Houses"
+        sellHousesBtn.addEventListener("click", () => {
+            alert("sell houses btn clicked!")
+        })
+        actionButtonsBox.appendChild(sellHousesBtn)
+
+        let endTurnBtn = document.createElement("button")
+        endTurnBtn.textContent = "End Turn"
+        endTurnBtn.addEventListener("click", () => {
+            game.currentPlayer = switchPlayer(game)
+            takeTurn(game)
+        })
+        actionButtonsBox.appendChild(endTurnBtn)
 }
 
 function switchPlayer(game) {

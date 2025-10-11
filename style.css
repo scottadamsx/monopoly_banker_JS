@@ -1,3 +1,42 @@
 footer {
     margin-top: auto;
+    display:flex;
+    
+}
+
+footer div div {
+    float:left;
+    padding:5px;
+}
+
+
+#gameBox {
+    background-color: black;
+    border: 3px green solid;
+    color: white;
+    font-size: x-large;
+    align-items: center;
+    justify-content: center;
+    padding:15px;
+}
+
+#tradeContainer {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    background-color: darkblue;
+}
+
+div .playerValuesBox {
+    border: 2px blue solid;
+    background-color: forestgreen;
+    margin: 10px;
+}
+
+button {
+    padding: 20px;
+    color: black;
+    background-color: chocolate;
+    margin: 5px;
+
 }

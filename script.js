@@ -1,8 +1,9 @@
+// Class Section ===============================================================================================
 class Game {
-    constructor(players, board, currentPlayer) {
-        this.players = []
-        this.board = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
-        this.currentPlayer = ""
+    constructor(players, board) {
+        this.players = players
+        this.board = board
+        this.currentPlayer = players[0]
     }
 }
 
@@ -13,11 +14,91 @@ class Player {
         this.properties = []
         this.currentSpace = 1
     }
+    move(spaces) {
+        this.currentSpace = (this.currentSpace + spaces) % 40
+    }
 }
+
+class Property {
+    constructor(name, price, color, housePrice, houses, rent, rent1, rent2, rent3, rent4, rent5, morgageValue, owner="none") {
+        this.name = name
+        this.price = price
+        this.color = color
+        this.housePrice = housePrice
+        this.houses = houses
+        this.rent = rent
+        this.rent1 = rent1
+        this.rent2 = rent2
+        this.rent3 = rent3
+        this.rent4 = rent4
+        this.rent5 = rent5
+        this.morgageValue = morgageValue
+        this.owner = owner
+    }
+}
+// =============================================================================================================
+
+// global Variables
 
 let setupDiv = document.createElement("div")
 document.body.appendChild(setupDiv)
 setupDiv.textContent = " "
+
+let gameBox = document.getElementById("gameBox")
+let messageBox = document.getElementById("messageBox")
+let actionButtonsBox = document.getElementById("actionButtonsBox")
+
+
+// function that creates board and returns it
+function initializeBoard() {
+    let board = []
+
+    board[0] = "go"
+    board[1] = new Property("Mediterranean Avenue", 60, "brown", 50, 0, 2, 10, 30, 90, 160, 250, 30)
+    board[2] = "community chest"
+    board[3] = new Property("Baltic Avenue", 60, "brown", 50, 0, 4, 20, 60, 180, 320, 450, 30)
+    board[4] = "income tax"
+    board[5] = "reading railroad"
+    board[6] = new Property("Oriental Avenue", 100, "light blue", 50, 0, 6, 30, 90, 270, 400, 550, 50)
+    board[7] = "chance"
+    board[8] = new Property("Vermont Avenue", 100, "light blue", 50, 0, 6, 30, 90, 270, 400, 550, 50)
+    board[9] = new Property("Connecticut Avenue", 120, "light blue", 50, 0, 8, 40, 100, 300, 450, 600, 60)
+    board[10] = "jail"
+    board[11] = new Property("St. Charles Place", 140, "pink", 100, 0, 10, 50, 150, 450, 625, 750, 70)
+    board[12] = "electric company"
+    board[13] = new Property("States Avenue", 140, "pink", 100, 0, 10, 50, 150, 450, 625, 750, 70)
+    board[14] = new Property("Virginia Avenue", 160, "pink", 100, 0, 12, 60, 180, 500, 700, 900, 80)
+    board[15] = "pennsylvania railroad"
+    board[16] = new Property("St. James Place", 180, "orange", 100, 0, 14, 70, 200, 550, 750, 950, 90)
+    board[17] = "community chest"
+    board[18] = new Property("Tennessee Avenue", 180, "orange", 100, 0, 14, 70, 200, 550, 750, 950, 90)
+    board[19] = new Property("New York Avenue", 200, "orange", 100, 0, 16, 80, 220, 600, 800, 1000, 100)
+    board[20] = "free parking"
+    board[21] = new Property("Kentucky Avenue", 220, "red", 150, 0, 18, 90, 250, 700, 875, 1050, 110)
+    board[22] = "chance"
+    board[23] = new Property("Indiana Avenue", 220, "red", 150, 0, 18, 90, 250, 700, 875, 1050, 110)
+    board[24] = new Property("Illinois Avenue", 240, "red", 150, 0, 20, 100, 300, 750, 925, 1100, 120)
+    board[25] = "b&o railroad"
+    board[26] = new Property("Atlantic Avenue", 260, "yellow", 150, 0, 22, 110, 330, 800, 975, 1150, 130)
+    board[27] = new Property("Ventnor Avenue", 260, "yellow", 150, 0, 22, 110, 330, 800, 975, 1150, 130)
+    board[28] = "water works"
+    board[29] = new Property("Marvin Gardens", 280, "yellow", 150, 0, 24, 120, 360, 850, 1025, 1200, 140)
+    board[30] = "go to jail"
+    board[31] = new Property("Pacific Avenue", 300, "green", 200, 0, 26, 130, 390, 900, 1100, 1275, 150)
+    board[32] = new Property("North Carolina Avenue", 300, "green", 200, 0, 26, 130, 390, 900, 1100, 1275, 150)
+    board[33] = "community chest"
+    board[34] = new Property("Pennsylvania Avenue", 320, "green", 200, 0, 28, 150, 450, 1000, 1200, 1400, 160)
+    board[35] = "short line railroad"
+    board[36] = "chance"
+    board[37] = new Property("Park Place", 350, "dark blue", 200, 0, 35, 175, 500, 1100, 1300, 1500, 175)
+    board[38] = "luxury tax"
+    board[39] = new Property("Boardwalk", 400, "dark blue", 200, 0, 50, 200, 600, 1400, 1700, 2000, 200)
+
+    return board
+}
+
+
+
 
 function setupGame() {
     if (setupDiv.textContent == " ") {
@@ -73,8 +154,8 @@ function setupGame() {
             let playerName = input.value
             playerNames.push(playerName)
         })
-        alert(playerNames)
-        setupDiv.textContent = ""
+        setupDiv.innerHTML = ""
+
         let newGameBtn = document.getElementById("newGameBtn")
         newGameBtn.remove()
 
@@ -158,12 +239,11 @@ function setupGame() {
     })
 
 
-    }
-    
-}
+}}
 
 function updatePlayerValues(players) {
     let playerValuesSection = document.getElementById("playerValuesSection")
+    playerValuesSection.innerHTML = ""
     players.forEach(player => {
          let playerValues = document.createElement("div")
         playerValues.id = player.name + "Values"
@@ -183,6 +263,17 @@ function updatePlayerValues(players) {
         playerCurrentSpace.readOnly = true
         playerCurrentSpace.value = player.currentSpace
         //TODO: add a section for properties
+        let playerPropertiesLabel = document.createElement("h4")
+        playerPropertiesLabel.textContent = "Properties: "
+        let playerProperties = document.createElement("ul")
+        
+        player.properties.forEach(property => {
+            let propertyListItem = document.createElement("li")
+            propertyListItem.textContent = `${property.name} / color: ${property.color} / rent: ${property.rent} / price per house: ${property.housePrice}`
+            playerProperties.appendChild(propertyListItem)
+        })
+        
+
 
         // add playerValues to the div
         let playerDiv = document.createElement("div")
@@ -194,10 +285,15 @@ function updatePlayerValues(players) {
         playerDiv.appendChild(document.createElement("br"))
         playerDiv.appendChild(playerCurrentSpaceLabel)
         playerDiv.appendChild(playerCurrentSpace)
-    }
-       
-    )
-}
+        playerDiv.appendChild(document.createElement("br"))
+        playerDiv.appendChild(playerPropertiesLabel)
+        playerDiv.appendChild(playerProperties)
+    })
+}       
+    
+
+// start game and play game functions
+// ===============================================================================================================
 
 function startGame(playerNames) {
     // create players
@@ -206,8 +302,85 @@ function startGame(playerNames) {
         let player = new Player(playerName)
         players.push(player)
     })
-    // ============================================
-    console.log(players)
-
+    console.log(players) // displays playerList in console for debugging purposes
     updatePlayerValues(players)
+    // ============================================
+    
+    // creates board using initializeBoard function
+    let board = initializeBoard()
+    console.log(board)
+
+    let game = new Game(players, board)
+    console.log(game)
+    playGame(game)
+}
+
+function rollDie() {
+    return Math.floor(Math.random() * 6) + 1
+}
+
+
+function takeTurn(game) {
+    messageBox.textContent = "it is " + game.currentPlayer.name + "'s turn!"
+    let rollBtn = document.createElement("button")
+    rollBtn.textContent = "roll dice!"
+    rollBtn.addEventListener("click", () => {
+        let die1 = rollDie()
+        let die2 = rollDie()
+        let roll = die1 + die2
+        messageBox.innerHTML = `${game.currentPlayer.name} rolled a ${die1} and ${die2}. Total Roll: ${roll}<br>`
+        game.currentPlayer.move(roll)
+        // handle roll
+        rollBtn.remove()
+        let newSpace = game.board[game.currentPlayer.currentSpace]
+        console.log("Game Log: " + game.currentPlayer.name + " rolled "+ roll + " and landed on " + newSpace) // game log
+        if (newSpace instanceof Property) {
+            if (newSpace.owner == "none") {
+                console.log("no one owns this!")
+                let purchase = prompt(`you landed on ${newSpace.name} it costs ${newSpace.price}, would you like to buy it? [yes/no]:`)
+                if (purchase == "yes") {
+                    game.currentPlayer.wallet -= newSpace.price 
+                    newSpace.owner = game.currentPlayer
+                    game.currentPlayer.properties.push(newSpace)
+                }
+            } else {
+                console.log("someone owns this!")
+                alert(`This is owned by ${newSpace.owner.name}, you paid them ${newSpace.rent} in rent`)
+                game.currentPlayer.wallet -= newSpace.rent
+                newSpace.owner.wallet += newSpace.rent
+                console.log(`Game Log: ${game.currentPlayer} paid`)
+
+
+            } 
+        } else {
+                alert(`you landed on ${newSpace}, more development coming soon! for now it is a free space :)`)
+            }
+        updatePlayerValues(game.players)
+
+        game.currentPlayer = switchPlayer(game)
+        takeTurn(game)
+
+    })
+    actionButtonsBox.appendChild(rollBtn)
+}
+
+function switchPlayer(game) {
+    let currentPlayer = game.currentPlayer
+    let playerLength = game.players.length
+    let currentPlayerIndex = game.players.indexOf(currentPlayer)
+    if (currentPlayerIndex == (playerLength - 1)) {
+        currentPlayer = game.players[0]
+    } else {
+        currentPlayer = game.players[currentPlayerIndex + 1]
+    }
+    return currentPlayer
+}
+
+function playGame(game) {
+    console.log("entered the play Game Function") //debugging
+    console.log(game.players,game.board,game.currentPlayer.name)
+    // loop through until someone wins (there is one player left in game.players)
+    takeTurn(game)
+
+    // start turn for currentPlayer which is the first player in the game
 }

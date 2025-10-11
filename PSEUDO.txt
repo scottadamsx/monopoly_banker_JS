@@ -1,0 +1,16 @@
+game logic
+
+start game by creating a game object with the playersList as
+Game.players and creating board
+
+player should have methods for:
+    - moving spots
+    - paying rent
+    - buying properties
+    - selling properties
+
+Property class should include: name, price, color, housePrice, 
+                               houses, rent, rent1, rent2, rent3, 
+                               rent4, rent5, morgageValue, 
+                               owner="none"
+

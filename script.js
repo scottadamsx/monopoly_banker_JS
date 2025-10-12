@@ -12,10 +12,39 @@ class Player {
         this.name = name
         this.wallet = 2500
         this.properties = []
+        this.monopolies = []
         this.currentSpace = 1
     }
     move(spaces) {
         this.currentSpace = (this.currentSpace + spaces) % 40
+    }
+    
+    checkForMonopolies() {
+        let colors = ["brown", "light blue", "pink", "orange", "red", "yellow", "green", "dark blue"]
+        // loop through every color
+        colors.forEach(color => {
+            // set the number of properties needed for a monopoly
+            let numPropertiesForMonopoly = 3
+            if (color == "brown" || color == "dark blue") {
+                numPropertiesForMonopoly = 2
+            } 
+                
+            
+
+            let propertiesThatMatch = []
+            this.properties.forEach(property => {
+                if (property.color == color) {
+                    propertiesThatMatch.push(property)
+                }
+            })
+            if (numPropertiesForMonopoly == propertiesThatMatch.length) {
+                // checks to see if the monopoly is already in there, if not, it'll add it
+                if (!this.monopolies.some(m => m[0] === color)) {
+                    this.monopolies.push([color, propertiesThatMatch])
+}
+                
+            } 
+        })
     }
 }
 
@@ -246,7 +275,8 @@ function updatePlayerValues(players) {
     let playerValuesSection = document.getElementById("playerValuesSection")
     playerValuesSection.innerHTML = ""
     players.forEach(player => {
-        
+
+        player.checkForMonopolies()
         // add a space for name
         let playerName = document.createElement("h3")
         playerName.textContent = player.name
@@ -272,7 +302,16 @@ function updatePlayerValues(players) {
             propertyListItem.textContent = `${property.name} / color: ${property.color} / rent: ${property.rent} / price per house: ${property.housePrice}`
             playerProperties.appendChild(propertyListItem)
         })
-        
+
+        let playerMonopoliesLabel = document.createElement("h4")
+        playerMonopoliesLabel.textContent = "Monopolies: "
+        let playerMonopolies = document.createElement("ul")
+
+        player.monopolies.forEach(monopoly => {
+            let monopolyListItem = document.createElement("li")
+            monopolyListItem.textContent = `color: ${monopoly[0]} / properties: ${monopoly[1]}`
+            playerMonopolies.appendChild(monopolyListItem)
+        })
 
 
         // add playerValues to the div
@@ -291,6 +330,9 @@ function updatePlayerValues(players) {
         playerDiv.appendChild(document.createElement("br"))
         playerDiv.appendChild(playerPropertiesLabel)
         playerDiv.appendChild(playerProperties)
+        playerDiv.appendChild(playerMonopoliesLabel)
+        playerDiv.appendChild(playerMonopolies)
+
     })
 }       
     
@@ -358,7 +400,7 @@ function takeTurn(game) {
 
                 let dontPurchaseBtn = document.createElement("button")
                 dontPurchaseBtn.textContent = "Don't Buy"
-                dontPurchaseBtn.addEventListener("click", (game) => {
+                dontPurchaseBtn.addEventListener("click", () => {
                     actionButtonsBox.innerHTML = ""
                     afterTurnMenu(game)
                 })
@@ -388,9 +430,10 @@ function takeTurn(game) {
     })
     actionButtonsBox.appendChild(rollBtn)
 }
+
 // MAKE TRADE LOGIC
 // ==============================================================================================================
-function makeTrade(trader, tradee) {
+function makeTrade(game, trader, tradee) {
     let tradersTradeProperties = []
     let tradeesTradeProperties = []
     messageBox.textContent = ""
@@ -418,6 +461,7 @@ function makeTrade(trader, tradee) {
     traderMoney.type = "number"
     traderMoney.min = 0
     traderMoney.max = trader.wallet
+    traderMoney.defaultValue = 0
     
     // create a select for user to add properties to trade
     let traderPropertySelect = document.createElement("select")
@@ -426,17 +470,33 @@ function makeTrade(trader, tradee) {
     // add options for select
     trader.properties.forEach(property => {
         let option = document.createElement("option")
-        option.value = property
+        option.value = trader.properties.indexOf(property)
         option.label = property.name
+        option.id = property.name + "option"
+        console.log(property.name, option.value)
         traderPropertySelect.appendChild(option)
     })
+
     // show properties to be traded that are added 
     let traderTradeDisplay = document.createElement("textarea")
+    traderTradeDisplay.readOnly = true
+    traderTradeDisplay.style.width = "200px"
+    traderTradeDisplay.style.height = "100px"
+
+    // create button for adding property
     let traderAddPropertyBtn = document.createElement("button")
+    traderAddPropertyBtn.textContent = "add property"
     traderAddPropertyBtn.addEventListener("click", () => {
-        let propertyToAddToTrade = traderPropertySelect.value
+        let propertyToAddToTrade = trader.properties[parseInt(traderPropertySelect.value)]
+        // add to trade
         tradersTradeProperties.push(propertyToAddToTrade)
+        // add to display
         traderTradeDisplay.value += `${propertyToAddToTrade.name}\n`
+        // remove option
+        const opt = document.getElementById(`${propertyToAddToTrade.name}option`)
+        opt.remove()
+
+        console.log(tradersTradeProperties)
     })
 
     traderBox.appendChild(traderBoxTitle)
@@ -468,6 +528,7 @@ function makeTrade(trader, tradee) {
     tradeeMoney.type = "number"
     tradeeMoney.min = 0
     tradeeMoney.max = tradee.wallet
+    tradeeMoney.defaultValue = 0
     
     // create a select for user to add properties to trade
     let tradeePropertySelect = document.createElement("select")
@@ -476,18 +537,30 @@ function makeTrade(trader, tradee) {
     // add options for select
     tradee.properties.forEach(property => {
         let option = document.createElement("option")
-        option.value = property
+        option.value = tradee.properties.indexOf(property)
         option.label = property.name
+        option.id = property.name + "option"
         tradeePropertySelect.appendChild(option)
     })
     // show properties to be traded that are added 
     let tradeeTradeDisplay = document.createElement("textarea")
+    tradeeTradeDisplay.readOnly = true
+    tradeeTradeDisplay.style.width = "200px"
+    tradeeTradeDisplay.style.height = "100px"
+
     let tradeeAddPropertyBtn = document.createElement("button")
     tradeeAddPropertyBtn.textContent = "add property"
     tradeeAddPropertyBtn.addEventListener("click", () => {
-        let propertyToAddToTrade = tradeePropertySelect.value
+        let propertyToAddToTrade = tradee.properties[parseInt(tradeePropertySelect.value)]
+        // add it to the trade list 
         tradeesTradeProperties.push(propertyToAddToTrade)
+        // update display
         tradeeTradeDisplay.value += `${propertyToAddToTrade.name}\n`
+        // remove it from options
+        const opt = document.getElementById(`${propertyToAddToTrade.name}option`)
+        opt.remove()
+
+        console.log(tradeesTradeProperties)
     })
     tradeeBox.appendChild(tradeeBoxTitle)
     tradeeBox.appendChild(document.createElement("br"))
@@ -501,16 +574,47 @@ function makeTrade(trader, tradee) {
     // END OF TRADEE BOX ==========================================================================================
 
 
+    // logic for confirming trade
     let confirmTradeBtn = document.createElement("button")
     confirmTradeBtn.textContent = "Confirm Trade"
     confirmTradeBtn.addEventListener("click", () => {
         alert("confirm trade!")
+        // add all the traders trade properties to the properties attribute for the tradee
+        tradersTradeProperties.forEach(property => {
+            tradee.properties.push(property)
+            trader.properties.splice((trader.properties.indexOf(property)),1)
+        })
+        // add all the tradees trade properties to the properties attribute for the trader
+        tradeesTradeProperties.forEach(property => {
+            trader.properties.push(property)
+            tradee.properties.splice((tradee.properties.indexOf(property)),1)
+        })
+        let moneyForTradee = parseInt(traderMoney.value)
+        let moneyForTrader = parseInt(tradeeMoney.value)
+
+        console.log(moneyForTradee, moneyForTrader)
+        // subtract the money from the wallets
+        trader.wallet -= moneyForTradee
+        tradee.wallet -= moneyForTrader
+
+        // add it to the other wallet
+        trader.wallet += moneyForTrader
+        tradee.wallet += moneyForTradee
+
+        messageBox.textContent = "Trade has been accepted!"
+        actionButtonsBox.innerHTML = ""
+        tradeContainer.remove()
+        afterTurnMenu(game)
     })
 
     let denyTradeBtn = document.createElement("button")
     denyTradeBtn.textContent = "Deny Trade"
     denyTradeBtn.addEventListener("click", () => {
         alert("deny trade!")
+        messageBox.textContent = "Trade has been denied!"
+        actionButtonsBox.innerHTML = ""
+        tradeContainer.remove()
+        afterTurnMenu(game)
     })
     actionButtonsBox.appendChild(confirmTradeBtn)
     actionButtonsBox.appendChild(denyTradeBtn)
@@ -529,7 +633,7 @@ function makeTradeMenu(game) {
             let playerBtn = document.createElement("button")
             playerBtn.textContent = player.name
             playerBtn.addEventListener("click", () => {
-                makeTrade(game.currentPlayer, player) 
+                makeTrade(game, game.currentPlayer, player) 
             })
             actionButtonsBox.appendChild(playerBtn)
         }

@@ -14,3 +14,23 @@ Property class should include: name, price, color, housePrice,
                                rent4, rent5, morgageValue, 
                                owner="none"
 
+
+
+check for monopoly function():
+- create list for colors
+- loop through colors (if brown or dark blue have different logic)
+    colors.forEach(color => 
+        if (color == brown or dark blue) {
+            properties.forEach(property => {
+                numPropertiesForMonopoly = 2
+                propertiesThatMatch = []
+
+                if (property.color == color) {
+                    propertiesThatMatch.push(property)
+                }
+                if (propertiesThatMatch.length == numPropertiesForMonopoly) {
+                    add
+                }
+            })
+        }
+    )

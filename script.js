@@ -64,6 +64,17 @@ class Property {
         this.morgageValue = morgageValue
         this.owner = owner
     }
+
+    addHouse() {
+
+        if (this.houses < 5) {
+            this.houses += 1
+            
+        } else {
+            alert("this property already has a hotel! cannot add new house")
+        }
+        
+    }
 }
 // =============================================================================================================
 
@@ -292,7 +303,8 @@ function updatePlayerValues(players) {
         let playerCurrentSpace = document.createElement("input")
         playerCurrentSpace.readOnly = true
         playerCurrentSpace.value = player.currentSpace
-        //TODO: add a section for properties
+
+        //add a section for properties
         let playerPropertiesLabel = document.createElement("h4")
         playerPropertiesLabel.textContent = "Properties: "
         let playerProperties = document.createElement("ul")
@@ -300,16 +312,21 @@ function updatePlayerValues(players) {
         player.properties.forEach(property => {
             let propertyListItem = document.createElement("li")
             propertyListItem.textContent = `${property.name} / color: ${property.color} / rent: ${property.rent} / price per house: ${property.housePrice}`
+            propertyListItem.style.backgroundColor = property.color
             playerProperties.appendChild(propertyListItem)
         })
 
+        // add monopolies section
         let playerMonopoliesLabel = document.createElement("h4")
         playerMonopoliesLabel.textContent = "Monopolies: "
         let playerMonopolies = document.createElement("ul")
 
         player.monopolies.forEach(monopoly => {
             let monopolyListItem = document.createElement("li")
-            monopolyListItem.textContent = `color: ${monopoly[0]} / properties: ${monopoly[1]}`
+            monopolyListItem.textContent = `Color: ${monopoly[0]}\nProperties: `
+            monopoly[1].forEach(property => {
+                monopolyListItem.textContent += `${property.name}, houses:[${property.houses}] / `
+            })
             playerMonopolies.appendChild(monopolyListItem)
         })
 
@@ -623,7 +640,6 @@ function makeTrade(game, trader, tradee) {
 
 
 function makeTradeMenu(game) {
-    let playersToTradeWith = []
     actionButtonsBox.innerHTML = ""
     messageBox.textContent = "who would you like to trade with?"
     game.players.forEach(player => {
@@ -640,40 +656,93 @@ function makeTradeMenu(game) {
     })
 }
 // ==============================================================================================================
+// Buy Houses Menu ===============================================================================================
 
+function buyHousesMenu(game) {
+    if (game.currentPlayer.monopolies.length > 0) {
+            messageBox.textContent = "Which monopoly would you like to buy houses for?"
+            actionButtonsBox.innerHTML = ""
+
+            game.currentPlayer.monopolies.forEach(monopoly => {
+                let monopolyColor = monopoly[0]
+                let monopolyBtn = document.createElement("button")
+                monopolyBtn.textContent = monopolyColor
+                monopolyBtn.addEventListener("click", () => {
+                    buyHouses(game,monopoly)
+                })
+                actionButtonsBox.appendChild(monopolyBtn)
+            })
+        } else {
+            alert("you do not have any monopolies to buy houses for! :(")
+        }
+}
+
+function buyHouses(game, monopoly) {
+    // create a list of the properties
+    let monopolyProperties = []
+    monopoly[1].forEach(property => {
+        monopolyProperties.push(property)
+    })
+    let housePrice = monopolyProperties[0].housePrice
+    let numHouses = parseInt(prompt(`how many houses would you like to buy, they cost ${housePrice}`))
+    console.log(numHouses)
+    if ((numHouses * housePrice) > game.currentPlayer.wallet) {
+        alert("you do not have enough money!")
+    } else {
+        
+        for (let i = numHouses; i <= 0; i--) {
+            actionButtonsBox.innerHTML = ""
+            messageBox.textContent = `you have ${numHouses} left to place`
+            monopoly[1].forEach(property => {
+                let button = document.createElement("button")
+                button.textContent = property.name
+                button.textContent.addEventListener("click", () => {
+                    property.addHouse()
+                })
+            })
+        }
+    }
+}
+// ===============================================================================================================
 
 function afterTurnMenu(game) {
     updatePlayerValues(game.players)
     actionButtonsBox.innerHTML = ""
+
+    // logic for make trade button
     let makeTradeBtn = document.createElement("button")
-        makeTradeBtn.textContent = "Make Trade"
-        makeTradeBtn.addEventListener("click", () => {
-            makeTradeMenu(game)
+    makeTradeBtn.textContent = "Make Trade"
+    makeTradeBtn.addEventListener("click", () => {
+        makeTradeMenu(game)
 
-        })
-        actionButtonsBox.appendChild(makeTradeBtn)
+    })
+    actionButtonsBox.appendChild(makeTradeBtn)
 
-        let buyHousesBtn = document.createElement("button")
-        buyHousesBtn.textContent = "Buy Houses"
-        buyHousesBtn.addEventListener("click", () => {
-            alert("buy houses btn clicked!")
-        })
-        actionButtonsBox.appendChild(buyHousesBtn)
+    // logic for buy houses button
+    let buyHousesBtn = document.createElement("button")
+    buyHousesBtn.textContent = "Buy Houses"
+    buyHousesBtn.addEventListener("click", () => {
+        alert("buy houses btn clicked!")
+        buyHousesMenu(game)
+        
+    })
+    actionButtonsBox.appendChild(buyHousesBtn)
 
-        let sellHousesBtn = document.createElement("button")
-        sellHousesBtn.textContent = "Sell Houses"
-        sellHousesBtn.addEventListener("click", () => {
-            alert("sell houses btn clicked!")
-        })
-        actionButtonsBox.appendChild(sellHousesBtn)
+    // logic for sell houses button
+    let sellHousesBtn = document.createElement("button")
+    sellHousesBtn.textContent = "Sell Houses"
+    sellHousesBtn.addEventListener("click", () => {
+        alert("sell houses btn clicked!")
+    })
+    actionButtonsBox.appendChild(sellHousesBtn)
 
-        let endTurnBtn = document.createElement("button")
-        endTurnBtn.textContent = "End Turn"
-        endTurnBtn.addEventListener("click", () => {
-            game.currentPlayer = switchPlayer(game)
-            takeTurn(game)
-        })
-        actionButtonsBox.appendChild(endTurnBtn)
+    let endTurnBtn = document.createElement("button")
+    endTurnBtn.textContent = "End Turn"
+    endTurnBtn.addEventListener("click", () => {
+        game.currentPlayer = switchPlayer(game)
+        takeTurn(game)
+    })
+    actionButtonsBox.appendChild(endTurnBtn)
 }
 
 function switchPlayer(game) {

@@ -312,7 +312,7 @@ function updatePlayerValues(players) {
         player.properties.forEach(property => {
             let propertyListItem = document.createElement("li")
             propertyListItem.textContent = `${property.name} / color: ${property.color} / rent: ${property.rent} / price per house: ${property.housePrice}`
-            propertyListItem.style.backgroundColor = property.color
+            propertyListItem.style.backgroundColor = property.color.replaceAll(" ", "")
             playerProperties.appendChild(propertyListItem)
         })
 

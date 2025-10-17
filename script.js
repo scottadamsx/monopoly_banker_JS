@@ -15,6 +15,7 @@ class Player {
         this.monopolies = []
         this.currentSpace = 1
     }
+
     move(spaces) {
         this.currentSpace = (this.currentSpace + spaces) % 40
     }
@@ -27,9 +28,9 @@ class Player {
             monopoly[1].forEach(property => {
                 property.addHouse()
             })
-        }
-        messageBox.textContent = `${housesToPlaceOnAllProperties} houses have been applied to all ${numberOfProperties} properties, you have ${leftOverHouses} houses left to place!`
-        actionButtonsBox.innerHTML = ""
+        if (leftOverHouses > 0) {
+           messageBox.textContent = `${housesToPlaceOnAllProperties} houses have been applied to all ${numberOfProperties} properties, you have ${leftOverHouses} houses left to place!`
+        
         updatePlayerValues(game.players)
 
         monopoly[1].forEach(property => {
@@ -59,12 +60,14 @@ class Player {
             // add button to the button box
             actionButtonsBox.appendChild(button)
         })
-                
 
-
-        
-
-
+        // if there are no leftover houses, go to end of turn    
+        } else {
+            messageBox.textContent = `${housesToPlaceOnAllProperties} houses have been applied to all ${numberOfProperties} properties`
+            actionButtonsBox.innerHTML = ""
+            afterTurnMenu(game)
+            }
+        }
     }
     
     checkForMonopolies() {
@@ -136,6 +139,7 @@ class Property {
     addHouse() {
         if (this.houses < 5) {
             this.houses += 1
+            this.owner.wallet -= this.housePrice
             this.changeRent()
         } else {
             alert("this property already has a hotel! cannot add new house")
@@ -401,7 +405,7 @@ function updatePlayerValues(players) {
         let playerMonopolies = document.createElement("div")
         // for each monoply create a title and list element
         player.monopolies.forEach(monopoly => {
-            let monopolyColor = document.createElement("h3")
+            let monopolyColor = document.createElement("h4")
             monopolyColor.textContent = monopoly[0]
             let monopolyList = document.createElement("ul")
             playerMonopolies.appendChild(monopolyColor)
@@ -493,7 +497,13 @@ function takeTurn(game) {
         if (newSpace instanceof Property) {
             // logic for if the property isn't owned
             if (newSpace.owner == "none") {
-                messageBox.innerHTML += `you landed on ${newSpace.name}! It costs ${newSpace.price}$<br>would you like to buy it?<br>`
+                // checks to see if the price is too much, if not they enter the buy property menu
+                if (newSpace.price > game.currentPlayer.wallet) {
+                    messageBox.innerHTML += `you landed on ${newSpace.name}! It costs ${newSpace.price}$, you cannot afford it (lol brokie)`
+                    afterTurnMenu(game)
+                }
+                else {
+                    messageBox.innerHTML += `you landed on ${newSpace.name}! It costs ${newSpace.price}$<br>would you like to buy it?<br>`
                 let purchaseBtn = document.createElement("button")
                 purchaseBtn.textContent = "Buy Property"
                 purchaseBtn.addEventListener("click", () => {
@@ -512,13 +522,12 @@ function takeTurn(game) {
                     messageBox.textContent = `You did not buy ${newSpace.name}`
                     afterTurnMenu(game)
                 })
-                actionButtonsBox.appendChild(dontPurchaseBtn)
-
-                
-                    
+                actionButtonsBox.appendChild(dontPurchaseBtn)       
+            }   
+                }
                 
             // logic for if someone owns the property you landed on
-            } else {
+            else {
                 messageBox.innerHTML += `${newSpace.name} is owned by ${newSpace.owner.name}, you paid them ${newSpace.rent} in rent`
                 game.currentPlayer.wallet -= newSpace.rent
                 newSpace.owner.wallet += newSpace.rent

@@ -40,10 +40,11 @@ background-color: antiquewhite;
 div .playerValuesBox {
     border: 1px red solid;
     background-color: rgb(176, 223, 176);
-    margin: 10px;
+    margin: 3px;
+    padding: 10px;
     font-family: 'Arial Black', Gadget, sans-serif;
 }
-div .playerValuesBox h3 {
+div .playerValuesBox h4 {
     text-align: center;
 }
 
@@ -64,5 +65,4 @@ footer {
 
 footer div div {
     float:left;
-    padding:5px;
 }

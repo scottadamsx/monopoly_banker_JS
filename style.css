@@ -1,19 +1,28 @@
-footer {
-    margin-top: auto;
-    display:flex;
+
+header {
+    flex:auto;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    font-size: larger;
+    justify-content: center;
+    text-align: center;
+    background-color: red;
+    border: black solid 3px;
+    color: white; 
+     text-shadow: 3px 3px 0 #000;
+     margin-bottom: 5px;
     
 }
 
-footer div div {
-    float:left;
-    padding:5px;
+body {
+    font-family: 'Arial Black', Gadget, sans-serif;
+background-color: antiquewhite;
+
 }
 
-
 #gameBox {
-    background-color: black;
-    border: 3px green solid;
-    color: white;
+    background-color: rgb(176, 223, 176);
+    border: 3px solid black;
+    color: black;
     font-size: x-large;
     align-items: center;
     justify-content: center;
@@ -24,19 +33,32 @@ footer div div {
     display: flex;
     gap: 20px;
     justify-content: center;
-    background-color: darkblue;
+    background-color: rgb(88, 88, 150);
 }
 
+
 div .playerValuesBox {
-    border: 2px blue solid;
-    background-color: forestgreen;
+    border: 1px red solid;
+    background-color: rgb(176, 223, 176);
     margin: 10px;
+    font-family: 'Arial Black', Gadget, sans-serif;
 }
 
 button {
-    padding: 20px;
-    color: black;
-    background-color: chocolate;
+    padding: 10px;
+    color: white;
+    font-size: large;
+    background-color: seagreen;
     margin: 5px;
+}
 
+footer {
+    margin-top: auto;
+    display:flex;
+    
+}
+
+footer div div {
+    float:left;
+    padding:5px;
 }

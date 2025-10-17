@@ -18,6 +18,54 @@ class Player {
     move(spaces) {
         this.currentSpace = (this.currentSpace + spaces) % 40
     }
+
+    purchaseHouses(game, numHouses, monopoly) {
+        let numberOfProperties = monopoly[1].length
+        let housesToPlaceOnAllProperties = Math.floor(numHouses / numberOfProperties)
+        let leftOverHouses = numHouses % numberOfProperties
+        for (let i = 0; i < housesToPlaceOnAllProperties; i++) {
+            monopoly[1].forEach(property => {
+                property.addHouse()
+            })
+        }
+        messageBox.textContent = `${housesToPlaceOnAllProperties} houses have been applied to all ${numberOfProperties} properties, you have ${leftOverHouses} houses left to place!`
+        actionButtonsBox.innerHTML = ""
+        updatePlayerValues(game.players)
+
+        monopoly[1].forEach(property => {
+            // create button 
+            let button = document.createElement("button")
+            // give button name
+            button.textContent = property.name
+            // event handler for button
+            button.addEventListener("click", () => {
+        
+                // add house to property
+                property.addHouse()
+                // subtract one from houses
+                leftOverHouses -= 1
+                // remove button
+                button.remove()
+
+                if (leftOverHouses == 0) {
+                    messageBox.textContent = "all the houses have been placed!"
+                    actionButtonsBox.innerHTML = ""
+                    afterTurnMenu(game)
+                }
+
+                // reset message box
+                messageBox.textContent = `you have ${leftOverHouses} houses left to place!`
+            })
+            // add button to the button box
+            actionButtonsBox.appendChild(button)
+        })
+                
+
+
+        
+
+
+    }
     
     checkForMonopolies() {
         let colors = ["brown", "light blue", "pink", "orange", "red", "yellow", "green", "dark blue"]
@@ -66,14 +114,12 @@ class Property {
     }
 
     addHouse() {
-
         if (this.houses < 5) {
             this.houses += 1
             
         } else {
             alert("this property already has a hotel! cannot add new house")
-        }
-        
+        }  
     }
 }
 // =============================================================================================================
@@ -689,18 +735,9 @@ function buyHouses(game, monopoly) {
     if ((numHouses * housePrice) > game.currentPlayer.wallet) {
         alert("you do not have enough money!")
     } else {
+        // logic for purchasing houses
+        game.currentPlayer.purchaseHouses(game, numHouses, monopoly)
         
-        for (let i = numHouses; i <= 0; i--) {
-            actionButtonsBox.innerHTML = ""
-            messageBox.textContent = `you have ${numHouses} left to place`
-            monopoly[1].forEach(property => {
-                let button = document.createElement("button")
-                button.textContent = property.name
-                button.textContent.addEventListener("click", () => {
-                    property.addHouse()
-                })
-            })
-        }
     }
 }
 // ===============================================================================================================

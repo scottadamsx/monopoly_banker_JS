@@ -116,10 +116,23 @@ class Property {
     addHouse() {
         if (this.houses < 5) {
             this.houses += 1
-            
+            this.changeRent()
         } else {
             alert("this property already has a hotel! cannot add new house")
         }  
+    }
+    changeRent() {
+        if (this.houses == 1) {
+            this.rent = this.rent1
+        } else if (this.houses == 2) {
+            this.rent = this.rent2
+        } else if (this.houses == 3) {
+            this.rent = this.rent3
+        } else if (this.houses == 4) {
+            this.rent = this.rent4
+        } else if (this.houses == 5) {
+            this.rent = this.rent5
+        }
     }
 }
 // =============================================================================================================
@@ -335,7 +348,7 @@ function updatePlayerValues(players) {
 
         player.checkForMonopolies()
         // add a space for name
-        let playerName = document.createElement("h3")
+        let playerName = document.createElement("h2")
         playerName.textContent = player.name
         // add a space for wallet
         let playerWalletLabel = document.createElement("label")
@@ -351,7 +364,7 @@ function updatePlayerValues(players) {
         playerCurrentSpace.value = player.currentSpace
 
         //add a section for properties
-        let playerPropertiesLabel = document.createElement("h4")
+        let playerPropertiesLabel = document.createElement("h3")
         playerPropertiesLabel.textContent = "Properties: "
         let playerProperties = document.createElement("ul")
         
@@ -363,19 +376,24 @@ function updatePlayerValues(players) {
         })
 
         // add monopolies section
-        let playerMonopoliesLabel = document.createElement("h4")
+        let playerMonopoliesLabel = document.createElement("h3")
         playerMonopoliesLabel.textContent = "Monopolies: "
-        let playerMonopolies = document.createElement("ul")
-
+        let playerMonopolies = document.createElement("div")
+        // for each monoply create a title and list element
         player.monopolies.forEach(monopoly => {
-            let monopolyListItem = document.createElement("li")
-            monopolyListItem.textContent = `Color: ${monopoly[0]}\nProperties: `
-            monopoly[1].forEach(property => {
-                monopolyListItem.textContent += `${property.name}, houses:[${property.houses}] / `
-            })
-            playerMonopolies.appendChild(monopolyListItem)
-        })
+            let monopolyColor = document.createElement("h3")
+            monopolyColor.textContent = monopoly[0]
+            let monopolyList = document.createElement("ul")
+            playerMonopolies.appendChild(monopolyColor)
+            playerMonopolies.appendChild(monopolyList)
 
+           // loop through the propertiesi n the monopoly and add them to the list
+            monopoly[1].forEach(property => {
+                let monopolyListItem = document.createElement("li")
+                monopolyListItem.textContent = `${property.name} / Houses: [${property.houses}] `
+                monopolyList.appendChild(monopolyListItem)
+            })
+        })
 
         // add playerValues to the div
         let playerDiv = document.createElement("div")
@@ -410,13 +428,18 @@ function startGame(playerNames) {
         let player = new Player(playerName)
         players.push(player)
     })
+     // creates board using initializeBoard function
+    let board = initializeBoard()
+    console.log(board)
     console.log(players) // displays playerList in console for debugging purposes
+    // testing function to give a player a green monopoly
+    givePlayerOneAMonopolyTesting(players, board)
+
+    // display values to page
     updatePlayerValues(players)
     // ============================================
     
-    // creates board using initializeBoard function
-    let board = initializeBoard()
-    console.log(board)
+   
 
     let game = new Game(players, board)
     console.log(game)
@@ -457,6 +480,7 @@ function takeTurn(game) {
                     game.currentPlayer.wallet -= newSpace.price 
                     newSpace.owner = game.currentPlayer
                     game.currentPlayer.properties.push(newSpace)
+                    messageBox.textContent = `Congradulations! You bought ${newSpace}! It has been added to your properties`
                     afterTurnMenu(game)
                 })
                 actionButtonsBox.appendChild(purchaseBtn)
@@ -759,7 +783,6 @@ function afterTurnMenu(game) {
     let buyHousesBtn = document.createElement("button")
     buyHousesBtn.textContent = "Buy Houses"
     buyHousesBtn.addEventListener("click", () => {
-        alert("buy houses btn clicked!")
         buyHousesMenu(game)
         
     })
@@ -769,7 +792,7 @@ function afterTurnMenu(game) {
     let sellHousesBtn = document.createElement("button")
     sellHousesBtn.textContent = "Sell Houses"
     sellHousesBtn.addEventListener("click", () => {
-        alert("sell houses btn clicked!")
+        alert("sell houses btn clicked! no developement yet...")
     })
     actionButtonsBox.appendChild(sellHousesBtn)
 
@@ -801,4 +824,12 @@ function playGame(game) {
     takeTurn(game)
 
     // start turn for currentPlayer which is the first player in the game
+}
+
+function givePlayerOneAMonopolyTesting(players, board) {
+    let greenMonopoly = [board[31], board[32], board[34]]
+    greenMonopoly.forEach(property => {
+        property.owner = players[0]
+        players[0].properties.push(property)
+    })
 }

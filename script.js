@@ -68,6 +68,26 @@ class Player {
     }
     
     checkForMonopolies() {
+        // check CURRENT monopolies if they have one
+        if (this.monopolies.length > 0) {
+            // loop through each monopoly
+            this.monopolies.forEach(monopoly => {
+                // loop through monopolies, check if each one is also in properties
+                let removeMonopoly = false
+                // if property is not in players properties, it will switch boolean to true
+                monopoly[1].forEach(property => {
+                    if (!this.properties.includes(property)) {
+                        removeMonopoly = true
+                    }
+                })
+                // if boolean is true, remove the monopoly from player's monopolies
+                if (removeMonopoly == true) {
+                    this.monopolies.splice(this.monopolies.indexOf(monopoly),1)
+                }
+            })
+        }
+
+        // Check for any NEW monopolies
         let colors = ["brown", "light blue", "pink", "orange", "red", "yellow", "green", "dark blue"]
         // loop through every color
         colors.forEach(color => {
@@ -480,7 +500,7 @@ function takeTurn(game) {
                     game.currentPlayer.wallet -= newSpace.price 
                     newSpace.owner = game.currentPlayer
                     game.currentPlayer.properties.push(newSpace)
-                    messageBox.textContent = `Congradulations! You bought ${newSpace}! It has been added to your properties`
+                    messageBox.textContent = `Congradulations! You bought ${newSpace.name}! It has been added to your properties`
                     afterTurnMenu(game)
                 })
                 actionButtonsBox.appendChild(purchaseBtn)
@@ -489,6 +509,7 @@ function takeTurn(game) {
                 dontPurchaseBtn.textContent = "Don't Buy"
                 dontPurchaseBtn.addEventListener("click", () => {
                     actionButtonsBox.innerHTML = ""
+                    messageBox.textContent = `You did not buy ${newSpace.name}`
                     afterTurnMenu(game)
                 })
                 actionButtonsBox.appendChild(dontPurchaseBtn)
@@ -690,6 +711,8 @@ function makeTrade(game, trader, tradee) {
 
         messageBox.textContent = "Trade has been accepted!"
         actionButtonsBox.innerHTML = ""
+        trader.checkForMonopolies()
+        tradee.checkForMonopolies()
         tradeContainer.remove()
         afterTurnMenu(game)
     })
@@ -826,10 +849,18 @@ function playGame(game) {
     // start turn for currentPlayer which is the first player in the game
 }
 
+
+// TESTING FUNCTIONS 
 function givePlayerOneAMonopolyTesting(players, board) {
     let greenMonopoly = [board[31], board[32], board[34]]
     greenMonopoly.forEach(property => {
         property.owner = players[0]
         players[0].properties.push(property)
+    })
+}
+
+function showBoardState(board) {
+    board.forEach(space => {
+        console.log(space)
     })
 }

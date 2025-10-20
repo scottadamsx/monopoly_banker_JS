@@ -474,9 +474,6 @@ function rollDie() {
     return Math.floor(Math.random() * 6) + 1
 }
 
-
-
-
 function takeTurn(game) {
     currentTurnBox.textContent = "it is " + game.currentPlayer.name + "'s turn!"
     messageBox.textContent = "Take your turn by rolling the dice!"
@@ -859,7 +856,7 @@ function playGame(game) {
 }
 
 
-// TESTING FUNCTIONS 
+// TESTING FUNCTIONS =============================================================================================== 
 function givePlayerOneAMonopolyTesting(players, board) {
     let greenMonopoly = [board[31], board[32], board[34]]
     greenMonopoly.forEach(property => {

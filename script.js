@@ -456,8 +456,9 @@ function startGame(playerNames) {
     let board = initializeBoard()
     console.log(board)
     console.log(players) // displays playerList in console for debugging purposes
-    // testing function to give a player a green monopoly
-    givePlayerOneAMonopolyTesting(players, board)
+
+    // TESTING: function to give a player a green monopoly
+    //  givePlayerOneAMonopolyTesting(players, board)
 
     // display values to page
     updatePlayerValues(players)
@@ -863,6 +864,7 @@ function givePlayerOneAMonopolyTesting(players, board) {
         property.owner = players[0]
         players[0].properties.push(property)
     })
+    players[0].wallet += 10000
 }
 
 function showBoardState(board) {
